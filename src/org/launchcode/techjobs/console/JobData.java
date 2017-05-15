@@ -1,5 +1,6 @@
 package org.launchcode.techjobs.console;
 
+import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -7,9 +8,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -21,6 +20,12 @@ public class JobData {
 
     private static ArrayList<HashMap<String, String>> allJobs;
 
+    // creates an accessible clone of the 'allJobs' arraylist (bonus mission)
+    public static ArrayList<HashMap<String, String>> getAllJobs() {
+        ArrayList<HashMap<String, String>> cloneJobs = (ArrayList<HashMap<String, String>>)allJobs.clone();
+        return cloneJobs;
+    }
+
     /**
      * Fetch list of all values from loaded data,
      * without duplicates, for a given column.
@@ -28,6 +33,8 @@ public class JobData {
      * @param field The column to retrieve values from
      * @return List of all of the values of the given field
      */
+
+
     public static ArrayList<String> findAll(String field) {
 
         // load data, if not already loaded
@@ -35,7 +42,7 @@ public class JobData {
 
         ArrayList<String> values = new ArrayList<>();
 
-        for (HashMap<String, String> row : allJobs) {
+        for (HashMap<String, String> row : JobData.getAllJobs()) {
             String aValue = row.get(field);
 
             if (!values.contains(aValue)) {
@@ -51,7 +58,7 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        return JobData.getAllJobs();
     }
 
     /**
@@ -64,19 +71,47 @@ public class JobData {
      * @param column   Column that should be searched.
      * @param value Value of teh field to search for
      * @return List of all jobs matching the criteria
+     *
+     *
      */
+
+    public static ArrayList<HashMap<String, String>> findByValue(String searchVal) {
+
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        // nested for loops iterate through each row and checks the column values of each row in the nested loop
+        // and searches through the clone of the allJobs arraylist
+        for (HashMap<String, String> row : JobData.getAllJobs()) {
+            for (String colValue : row.values()) {
+
+                // creates lower case strings to compare string equality
+                if (colValue.toLowerCase().contains(searchVal.toLowerCase())) {
+                    // if the arraylist 'jobs' does not contain the row, it will be added
+                    if (!jobs.contains(row)){
+                        jobs.add(row);
+                    }
+                }
+            }
+        }
+
+        return jobs;
+    }
+
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
 
         // load data, if not already loaded
         loadData();
 
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
-
-        for (HashMap<String, String> row : allJobs) {
+        // searches through the clone of the allJobs arraylist
+        for (HashMap<String, String> row : JobData.getAllJobs()) {
 
             String aValue = row.get(column);
 
-            if (aValue.contains(value)) {
+            // creates lower case strings to compare string equality
+            if (aValue.toLowerCase().contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
